@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Universiapolis',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Universiapolis'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: ListView(
+        children: [
+          SchoolCard(
+            title: 'Ecole polytechnique',
+            subtitle: 'Ingénierie',
+            logo: Image.asset('assets/logo1.png'),
+          ),
+          SchoolCard(
+            title: 'ISIAM',
+            subtitle: 'Business School',
+            logo: Image.asset('assets/logo2.png'),
+          ),
+          SchoolCard(
+            title: 'Ecole SupH\'Droit',
+            subtitle: 'Droit et sciences politiques',
+            logo: Image.asset('assets/logo3.png'),
+          ),
+          SchoolCard(
+            title: 'Ecole Tourisme',
+            subtitle: 'Hotellerie et communication',
+            logo: Image.asset('assets/logo4.png'),
+          ),
+          SchoolCard(
+            title: 'Faculté de santé',
+            subtitle: 'Pole santé',
+            logo: Image.asset('assets/logo5.png'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SchoolCard extends StatelessWidget {
+  const SchoolCard({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    required this.logo,
+  }) : super(key: key);
+
+  final String title;
+  final String subtitle;
+  final Image logo;
+
+  @override
+  Widget build(
