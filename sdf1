@@ -1,132 +1,104 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Calculateur IMC',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const ImcCalculator(),
+      title: 'IMC Calculator',
+      home: MyHomePage(),
     );
   }
 }
 
-class ImcCalculator extends StatefulWidget {
-  const ImcCalculator({Key? key}) : super(key: key);
-
+class MyHomePage extends StatefulWidget {
   @override
-  _ImcCalculatorState createState() => _ImcCalculatorState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _ImcCalculatorState extends State<ImcCalculator> {
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
-  String _result = '';
-  String _message = '';
-
-  // Fonction pour calculer l'IMC
-  double _calculateIMC(double weight, double height) {
-    return weight / (height * height);
-  }
-
-  // Fonction pour obtenir le message en fonction de l'IMC
-  String _getMessage(double imc) {
-    if (imc < 18.6) {
-      return 'Poids très bas (IMC=${imc.toStringAsFixed(2)})';
-    } else if (imc < 24.9) {
-      return 'Poids idéal (IMC=${imc.toStringAsFixed(2)})';
-    } else if (imc < 29.9) {
-      return 'Surpoids (IMC=${imc.toStringAsFixed(2)})';
-    } else if (imc < 34.9) {
-      return 'Obésité grade 1 (IMC=${imc.toStringAsFixed(2)})';
-    } else if (imc < 39.9) {
-      return 'Obésité grade 2 (IMC=${imc.toStringAsFixed(2)})';
-    } else {
-      return 'Obésité grade 3 (IMC=${imc.toStringAsFixed(2)})';
-    }
-  }
-
-  // Fonction pour valider les entrées et calculer l'IMC
-  void _calculate() {
-    setState(() {
-      // Récupérer les valeurs entrées par l'utilisateur
-      double weight = double.tryParse(_weightController.text) ?? 0;
-      double height = double.tryParse(_heightController.text) ?? 0;
-
-      // Validation des entrées
-      if (weight <= 0 || height <= 0) {
-        _result = 'Veuillez entrer des valeurs valides';
-        _message = '';
-      } else {
-        double imc = _calculateIMC(weight, height / 100); // Conversion de la taille en mètre
-        _result = 'Votre IMC est: ${imc.toStringAsFixed(2)}';
-        _message = _getMessage(imc);
-      }
-    });
-  }
+class _MyHomePageState extends State<MyHomePage> {
+  final _formKey = GlobalKey<FormState>();
+  double _weight = 0;
+  double _height = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculateur IMC'),
+        title: Text('IMC Calculator'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _weightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Poids (kg)',
-                border: OutlineInputBorder(),
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Poids (Kg)',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer votre poids';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _weight = double.parse(value!);
+                },
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _heightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Taille (cm)',
-                border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Taille (cm)',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer votre taille';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _height = double.parse(value!);
+                },
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _calculate,
-              child: const Text('Calculer'),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _result,
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _message,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
+              SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    // Calculate BMI
+                    double bmi = _weight / ((_height / 100) * (_height / 100));
+                    // Display result
+                     showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Votre IMC'),
+                          content: Text('Votre IMC est: ${bmi.toStringAsFixed(2)}'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: Text('Calculer votre IMC'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-Explication du code :
-TextEditingController : Utilisé pour récupérer les entrées de l'utilisateur (poids et taille).
-TextField : Champs de saisie pour le poids (kg) et la taille (cm).
-ElevatedButton : Un bouton pour déclencher le calcul de l'IMC.
-_calculateIMC : Méthode pour calculer l'IMC à partir du poids et de la taille.
-_getMessage : Méthode qui retourne un message basé sur la valeur de l'IMC.
-_calculate : Fonction qui vérifie que les valeurs saisies sont valides et effectue le calcul de l'IMC.
